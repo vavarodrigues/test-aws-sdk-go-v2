@@ -1,12 +1,10 @@
 package provider
 
 import (
-	//"fmt"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	"github.com/aws/aws-sdk-go-v2/service/rds"
 	"log"
-	"strings"
 )
 
 type AWS struct {
@@ -16,18 +14,7 @@ type AWS struct {
 
 func (a *AWS) FetchSubnet() (*rds.DescribeDBSubnetGroupsOutput, error) {
 	svc := a.RDS
-	//sf := &rds.DescribeDBSubnetGroupsInput{DBSubnetGroupName: aws.String("default-vpc-0d3deeaf89bfcaea7")}
-	//sf := &rds.DescribeDBSubnetGroupsInput{DBSubnetGroupName: aws.String(strings.Join([]string{"*", "default-vpc", "*"}, ""))}
-	sf := &rds.DescribeDBSubnetGroupsInput{
-		Filters: []rds.Filter{
-			{
-				Name: aws.String("Name"),
-				Values: []string{
-					strings.Join([]string{"*", "default-vpc", "*"}, ""),
-				},
-			},
-		},
-	}
+	sf := &rds.DescribeDBSubnetGroupsInput{}
 	req := svc.DescribeDBSubnetGroupsRequest(sf)
 	res, err := req.Send()
 
