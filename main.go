@@ -11,8 +11,8 @@ import (
 
 func main() {
 	a := provider.AWS{EC2: ec2Client(configClient()), RDS: rdsClient(configClient())}
-	result, _ := a.FetchSubnet()
-	fmt.Println(*result.DBSubnetGroups[0].DBSubnetGroupName)
+	result := a.RestoreDB()
+	fmt.Println(result)
 }
 
 func configClient() aws.Config {

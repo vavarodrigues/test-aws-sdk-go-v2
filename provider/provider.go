@@ -41,3 +41,37 @@ func (a *AWS) FetchEc2() (*ec2.DescribeInstancesOutput, error) {
 
 	return res, err
 }
+
+// RestoreDB restoreDB
+func (a *AWS) RestoreDB() bool {
+	svc := a.RDS
+	input := inputRestore()
+	res := svc.RestoreDBInstanceFromDBSnapshotRequest(input)
+	_, err := res.Send()
+
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+	return true
+}
+
+func inputRestore() *rds.RestoreDBInstanceFromDBSnapshotInput {
+	var tags []rds.Tag
+
+	return &rds.RestoreDBInstanceFromDBSnapshotInput{
+		Tags:                 tags,
+		StorageType:          aws.String("gp2"),
+		PubliclyAccessible:   aws.Bool(false),
+		MultiAZ:              aws.Bool(false),
+		LicenseModel:         aws.String("license-included"),
+		Engine:               aws.String("oracle-se2"),
+		DBSubnetGroupName:    aws.String("private"),
+		DBSnapshotIdentifier: aws.String(""),
+		DBName:               aws.String("k8srds"),
+		DBInstanceIdentifier: aws.String("k8srds"),
+		DBInstanceClass:      aws.String("db.t2.small"),
+		CopyTagsToSnapshot:   aws.Bool(true),
+		AvailabilityZone:     aws.String("us-east-2a"),
+	}
+}
