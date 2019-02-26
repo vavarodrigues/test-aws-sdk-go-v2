@@ -1,7 +1,7 @@
 # test-aws-sdk-go-v2
 
 
-> Install denpendencies
+> Install dependencies
 ```
 dep ensure
 ```
