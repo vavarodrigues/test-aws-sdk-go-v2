@@ -4,12 +4,42 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	"github.com/aws/aws-sdk-go-v2/service/rds"
+	"github.com/pkg/errors"
 	"log"
 )
 
 type AWS struct {
 	EC2 *ec2.EC2
 	RDS *rds.RDS
+}
+
+func (a *AWS) EnsureSubnets() (string, error) {
+	subnetDescription := "subnet example"
+	subnetName := "privateee"
+	subnets := []string{"subnet-aaaaaaaa", "subnet-bbbbbb", "subnet-cccccc"}
+	svc := a.RDS
+
+	sf := &rds.DescribeDBSubnetGroupsInput{DBSubnetGroupName: aws.String(subnetName)}
+	res := svc.DescribeDBSubnetGroupsRequest(sf)
+	_, err := res.Send()
+
+	if err != nil {
+		// assume we didn't find it..
+		subnet := &rds.CreateDBSubnetGroupInput{
+			DBSubnetGroupDescription: aws.String(subnetDescription),
+			DBSubnetGroupName:        aws.String(subnetName),
+			SubnetIds:                subnets,
+			Tags:                     []rds.Tag{{Key: aws.String("DBName"), Value: aws.String("db.Spec.DBName")}},
+		}
+		res := svc.CreateDBSubnetGroupRequest(subnet)
+		_, err := res.Send()
+		if err != nil {
+			return "", errors.Wrap(err, "CreateDBSubnetGroup")
+		}
+	} else {
+		log.Printf("Moving on seems like %v exsits", subnetName)
+	}
+	return subnetName, nil
 }
 
 func (a *AWS) FetchSubnet() (*rds.DescribeDBSubnetGroupsOutput, error) {

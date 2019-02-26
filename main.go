@@ -11,7 +11,10 @@ import (
 
 func main() {
 	a := provider.AWS{EC2: ec2Client(configClient()), RDS: rdsClient(configClient())}
-	result := a.RestoreDB()
+	result, err := a.EnsureSubnets()
+	if err != nil {
+		fmt.Errorf("Error: %v", err)
+	}
 	fmt.Println(result)
 }
 
